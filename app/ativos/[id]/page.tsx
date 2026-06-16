@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Card, PageTitle } from "@/components/ui";
 import { assetStatusLabel, assetTypeLabel, formatDate, movementTypeLabel, termStatusLabel, termTypeLabel } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
+import { deleteAsset } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +36,7 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
 
   return (
     <>
-      <PageTitle title={`Ativo ${asset.assetTag}`} description="Dados cadastrais, vínculo atual e histórico." />
+      <PageTitle title={`Ativo ${asset.assetTag}`} description="Dados cadastrais, vínculo atual e histórico." action={<div className="flex gap-2"><Link className="rounded-xl border px-4 py-2 text-sm font-semibold" href={`/ativos/${asset.id}/editar`}>Editar</Link><form action={deleteAsset}><input type="hidden" name="id" value={asset.id} /><button className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-700">Excluir</button></form></div>} />
       <div className="grid gap-5 xl:grid-cols-3">
         <Card>
           <h2 className="mb-4 text-lg font-semibold">Dados do ativo</h2>

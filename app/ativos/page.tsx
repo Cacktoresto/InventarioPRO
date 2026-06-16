@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button, Card, PageTitle } from "@/components/ui";
+import { Card, PageTitle } from "@/components/ui";
 import { assetStatuses, assetStatusLabel, assetStatusLabels, assetTypeLabel, type AssetStatusValue } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
@@ -11,6 +11,8 @@ type AssetSearchParams = {
   q?: string;
   status?: AssetStatusValue;
   page?: string;
+  result?: string;
+  message?: string;
 };
 
 async function getAssets(params: AssetSearchParams) {
@@ -47,6 +49,11 @@ async function getAssets(params: AssetSearchParams) {
 
 type AssetListRecord = Awaited<ReturnType<typeof getAssets>>["assets"][number];
 
+function Alert({ status, message }: { status?: string; message: string }) {
+  const isError = status === "error";
+  return <p className={`mb-4 rounded-xl border px-4 py-3 text-sm ${isError ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>{message}</p>;
+}
+
 function brandModel(asset: AssetListRecord) {
   return [asset.brand, asset.model].filter((value: string | null): value is string => Boolean(value)).join(" ") || "—";
 }
@@ -57,8 +64,9 @@ export default async function AssetsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageTitle title="Ativos" description="Consulta operacional dos bens cadastrados." action={<Button>Novo Ativo</Button>} />
+      <PageTitle title="Ativos" description="Consulta operacional dos bens cadastrados." action={<Link className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" href="/ativos/novo">Novo Ativo</Link>} />
       <Card>
+        {params.message ? <Alert status={params.result} message={params.message} /> : null}
         <form className="mb-5 flex flex-wrap gap-3">
           <input name="q" defaultValue={params.q} placeholder="Buscar por etiqueta, serial, host..." className="min-w-80 rounded-xl border border-slate-300 px-4 py-2" />
           <select name="status" defaultValue={params.status ?? ""} className="rounded-xl border border-slate-300 px-4 py-2">
@@ -72,7 +80,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: Promi
         <div className="overflow-hidden rounded-xl border border-slate-200">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-100 text-slate-600">
-              <tr><th className="p-3">Etiqueta</th><th>Tipo</th><th>Marca/modelo</th><th>Status</th><th>Responsável</th><th>Localização</th></tr>
+              <tr><th className="p-3">Etiqueta</th><th>Tipo</th><th>Marca/modelo</th><th>Status</th><th>Responsável</th><th>Localização</th><th>Ações</th></tr>
             </thead>
             <tbody>
               {assets.map((asset: AssetListRecord) => (
@@ -83,6 +91,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: Promi
                   <td>{assetStatusLabel(asset.status)}</td>
                   <td>{asset.currentResponsible?.name ?? "—"}</td>
                   <td>{asset.currentLocation.name}</td>
+                  <td><Link className="text-cyan-700 hover:underline" href={`/ativos/${asset.id}/editar`}>Editar</Link></td>
                 </tr>
               ))}
             </tbody>
