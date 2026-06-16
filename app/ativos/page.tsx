@@ -59,7 +59,7 @@ export default async function AssetsPage({ searchParams }: { searchParams: Promi
 
   return (
     <>
-      <PageHeader title="Ativos" description="Consulta operacional dos bens cadastrados." action={<ButtonLink href="/ativos/novo">Novo Ativo</ButtonLink>} />
+      <PageHeader title="Ativos" description="Consulta operacional dos bens cadastrados." action={<><ButtonLink href="/ativos/importar" variant="secondary">Importar CSV Absolute</ButtonLink><ButtonLink href="/ativos/novo">Novo Ativo</ButtonLink></>} />
       <Card>
         {params.message ? <Alert status={params.result} message={params.message} /> : null}
         <form className="mb-5 flex flex-wrap gap-3">
