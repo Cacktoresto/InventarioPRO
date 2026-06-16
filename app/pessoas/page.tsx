@@ -3,6 +3,8 @@ import { Card, PageTitle } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 import { createPerson, deletePerson, updatePerson } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 async function getPeopleData() {
   const [people, locations] = await Promise.all([
     prisma.person.findMany({ include: { location: true }, orderBy: { name: "asc" } }),

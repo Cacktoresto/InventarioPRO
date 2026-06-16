@@ -3,6 +3,8 @@ import { Button, Card, PageTitle } from "@/components/ui";
 import { assetStatuses, assetStatusLabel, assetStatusLabels, assetTypeLabel, type AssetStatusValue } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 10;
 
 type AssetSearchParams = {

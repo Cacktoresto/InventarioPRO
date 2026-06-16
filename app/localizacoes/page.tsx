@@ -4,6 +4,8 @@ import { locationTypes, locationTypeLabels, locationTypeValue, type LocationType
 import { prisma } from "@/lib/prisma";
 import { createLocation, deleteLocation, updateLocation } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 async function getLocations() {
   return prisma.location.findMany({ include: { parentLocation: true }, orderBy: { name: "asc" } });
 }

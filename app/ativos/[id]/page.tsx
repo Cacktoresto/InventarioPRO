@@ -3,6 +3,8 @@ import { Card, PageTitle } from "@/components/ui";
 import { assetStatusLabel, assetTypeLabel, formatDate, movementTypeLabel, termStatusLabel, termTypeLabel } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const assetDetailsInclude = {
   currentLocation: true,
   currentResponsible: true,

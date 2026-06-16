@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { Card, PageTitle } from "@/components/ui";
 
+export const dynamic = "force-dynamic";
+
 type DashboardCard = {
   label: string;
   value: number;
