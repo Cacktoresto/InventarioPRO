@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
-    "next": "15.3.5",
+    "next": "15.5.18",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
