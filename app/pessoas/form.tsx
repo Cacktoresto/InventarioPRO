@@ -1,0 +1,8 @@
+import { Button, Input, Select } from "@/components/ui";
+
+type LocationOption = { id: string; name: string };
+type PersonFormData = { id: string; name: string; email: string | null; employeeCode: string | null; document: string | null; department: string | null; locationId: string | null; active: boolean };
+
+export function PersonForm({ action, person, locations, submitLabel }: { action: (formData: FormData) => Promise<void>; person?: PersonFormData; locations: LocationOption[]; submitLabel: string }) {
+  return <form action={action} className="grid gap-4 md:grid-cols-2">{person ? <input type="hidden" name="id" value={person.id} /> : null}<Input name="name" label="Nome" defaultValue={person?.name ?? ""} required /><Input name="email" label="E-mail" defaultValue={person?.email ?? ""} /><Input name="employeeCode" label="Matrícula" defaultValue={person?.employeeCode ?? ""} /><Input name="document" label="Documento" defaultValue={person?.document ?? ""} /><Input name="department" label="Departamento" defaultValue={person?.department ?? ""} /><Select name="locationId" label="Localização" defaultValue={person?.locationId ?? ""}><option value="">Sem localização</option>{locations.map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</Select><input type="hidden" name="personType" value="EMPLOYEE" />{person ? <label className="flex items-center gap-2 text-sm font-medium text-slate-700"><input name="active" type="checkbox" defaultChecked={person.active} /> Ativo</label> : null}<div className="md:col-span-2"><Button>{submitLabel}</Button></div></form>;
+}
