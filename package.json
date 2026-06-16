@@ -30,6 +30,6 @@
     "prisma": "latest",
     "tailwindcss": "latest",
     "tsx": "latest",
-    "typescript": "latest"
+    "typescript": "^5.8.3"
   }
 }
