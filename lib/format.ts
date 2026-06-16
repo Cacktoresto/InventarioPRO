@@ -13,6 +13,7 @@ export const assetStatuses = [
 export const assetTypes = ["NOTEBOOK", "DESKTOP", "MONITOR", "PRINTER", "HANDHELD", "MOBILE_PHONE", "PERIPHERAL", "SERVER", "NETWORK", "OTHER"] as const;
 export const locationTypes = ["DISTRIBUTION_CENTER", "HEADQUARTERS", "STORE", "INTERNAL_AREA", "TECHNICAL_ASSISTANCE", "SUPPLIER", "DISPOSAL_AREA", "TRANSIT"] as const;
 export const movementTypes = ["HANDOVER", "RETURN", "TRANSFER", "MAINTENANCE_SEND", "MAINTENANCE_RETURN", "DISPOSAL_SEND", "INVENTORY_ADJUSTMENT"] as const;
+export const movementFormTypes = ["ENTRADA_ESTOQUE", "ENTREGA_USUARIO", "TRANSFERENCIA_LOCAL", "DEVOLUCAO", "ENVIO_MANUTENCAO", "RETORNO_MANUTENCAO", "DESCARTE"] as const;
 export const termTypes = ["HANDOVER", "RETURN", "TRANSFER", "REGULARIZATION"] as const;
 export const termStatuses = ["DRAFT", "ISSUED", "ACCEPTED", "REVOKED", "EXPIRED"] as const;
 
@@ -20,6 +21,7 @@ export type AssetStatusValue = (typeof assetStatuses)[number];
 export type AssetTypeValue = (typeof assetTypes)[number];
 export type LocationTypeValue = (typeof locationTypes)[number];
 export type MovementTypeValue = (typeof movementTypes)[number];
+export type MovementFormType = (typeof movementFormTypes)[number];
 export type TermTypeValue = (typeof termTypes)[number];
 export type TermStatusValue = (typeof termStatuses)[number];
 
@@ -60,13 +62,23 @@ export const locationTypeLabels: Record<LocationTypeValue, string> = {
 };
 
 export const movementTypeLabels: Record<MovementTypeValue, string> = {
-  HANDOVER: "Entrega",
-  RETURN: "Devolução",
-  TRANSFER: "Transferência",
-  MAINTENANCE_SEND: "Envio manutenção",
-  MAINTENANCE_RETURN: "Retorno manutenção",
-  DISPOSAL_SEND: "Envio descarte",
-  INVENTORY_ADJUSTMENT: "Ajuste inventário",
+  HANDOVER: "ENTREGA_USUARIO",
+  RETURN: "DEVOLUCAO",
+  TRANSFER: "TRANSFERENCIA_LOCAL",
+  MAINTENANCE_SEND: "ENVIO_MANUTENCAO",
+  MAINTENANCE_RETURN: "RETORNO_MANUTENCAO",
+  DISPOSAL_SEND: "DESCARTE",
+  INVENTORY_ADJUSTMENT: "ENTRADA_ESTOQUE",
+};
+
+export const movementFormTypeLabels: Record<MovementFormType, string> = {
+  ENTRADA_ESTOQUE: "Entrada em estoque",
+  ENTREGA_USUARIO: "Entrega ao usuário",
+  TRANSFERENCIA_LOCAL: "Transferência de local",
+  DEVOLUCAO: "Devolução",
+  ENVIO_MANUTENCAO: "Envio para manutenção",
+  RETORNO_MANUTENCAO: "Retorno da manutenção",
+  DESCARTE: "Descarte",
 };
 
 export const termTypeLabels: Record<TermTypeValue, string> = {
@@ -118,4 +130,12 @@ export function termStatusLabel(value: string) {
 
 export function formatDate(date?: Date | null) {
   return date ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(date) : "—";
+}
+
+export function statusBadgeTone(value: string): "slate" | "green" | "blue" | "amber" | "red" {
+  if (value === "ASSIGNED") return "blue";
+  if (value === "AVAILABLE") return "green";
+  if (value === "IN_MAINTENANCE" || value === "RESERVED" || value === "IN_TRANSIT") return "amber";
+  if (value === "DISPOSED" || value === "LOST" || value === "RETIRED" || value === "DISPOSAL_REQUESTED") return "red";
+  return "slate";
 }

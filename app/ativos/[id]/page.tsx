@@ -70,7 +70,7 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
                   <p className="font-semibold">
                     {movementTypeLabel(movement.type)} • {formatDate(movement.executedAt ?? movement.requestedAt)}
                   </p>
-                  <p className="text-slate-600">{movement.fromLocation?.name ?? "—"} → {movement.toLocation?.name ?? "—"}</p>
+                  <p className="text-slate-600">{movement.fromLocation?.name ?? "—"} → {movement.toLocation?.name ?? movement.conditionNotes ?? "—"}</p>
                   <p className="text-slate-500">{movement.reason ?? "Sem motivo informado"}</p>
                 </div>
               ))}
