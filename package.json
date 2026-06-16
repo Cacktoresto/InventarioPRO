@@ -4,21 +4,33 @@
   "private": true,
   "description": "Portal de Gestão de Ativos de TI",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:db:seed": "prisma db seed"
+    "prisma:db:seed": "prisma db seed",
+    "postinstall": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "latest"
+    "@prisma/client": "6.19.3",
+    "next": "15.5.18",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
-    "prisma": "latest",
-    "tsx": "latest",
-    "typescript": "latest",
-    "@types/node": "latest"
+    "@tailwindcss/postcss": "4.1.10",
+    "@types/node": "24.0.0",
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4",
+    "prisma": "6.19.3",
+    "tailwindcss": "4.1.10",
+    "tsx": "4.20.3",
+    "typescript": "5.8.3"
   }
 }

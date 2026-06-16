@@ -55,7 +55,7 @@ async function main() {
       ["Loja Centro", "LOJA-001", "Praça Central, 10"],
       ["Loja Norte", "LOJA-002", "Av. Norte, 220"],
       ["Loja Sul", "LOJA-003", "Rua Sul, 330"],
-    ].map(([name, code, address]) =>
+    ].map(([name, code, address]: string[]) =>
       prisma.location.upsert({
         where: { code },
         update: {},
@@ -152,7 +152,7 @@ async function main() {
         afterPayload: { email: admin.email, role: admin.role },
         metadata: { seed: true },
       },
-      ...assets.map((asset) => ({
+      ...assets.map((asset: (typeof assets)[number]) => ({
         id: `seed-audit-asset-${asset.assetTag.toLowerCase()}`,
         entityType: "Asset",
         entityId: asset.id,
