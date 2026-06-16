@@ -133,8 +133,8 @@ export function formatDate(date?: Date | null) {
 }
 
 export function statusBadgeTone(value: string): "slate" | "green" | "blue" | "amber" | "red" {
-  if (value === "ASSIGNED") return "blue";
-  if (value === "AVAILABLE") return "green";
+  if (value === "ASSIGNED") return "green";
+  if (value === "AVAILABLE") return "blue";
   if (value === "IN_MAINTENANCE" || value === "RESERVED" || value === "IN_TRANSIT") return "amber";
   if (value === "DISPOSED" || value === "LOST" || value === "RETIRED" || value === "DISPOSAL_REQUESTED") return "red";
   return "slate";

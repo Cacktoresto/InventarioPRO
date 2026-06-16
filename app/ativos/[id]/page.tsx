@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Card, PageTitle } from "@/components/ui";
-import { assetStatusLabel, assetTypeLabel, formatDate, movementTypeLabel, termStatusLabel, termTypeLabel } from "@/lib/format";
+import { Badge, Card, PageTitle } from "@/components/ui";
+import { assetStatusLabel, assetTypeLabel, formatDate, movementTypeLabel, statusBadgeTone, termStatusLabel, termTypeLabel } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { deleteAsset } from "../actions";
 
@@ -42,7 +42,7 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
           <h2 className="mb-4 text-lg font-semibold">Dados do ativo</h2>
           <dl className="space-y-3 text-sm">
             <Row label="Tipo" value={assetTypeLabel(asset.type)} />
-            <Row label="Status" value={assetStatusLabel(asset.status)} />
+            <div><dt className="text-slate-500">Status</dt><dd className="mt-1"><Badge tone={statusBadgeTone(asset.status)}>{assetStatusLabel(asset.status)}</Badge></dd></div>
             <Row label="Serial" value={asset.serialNumber} />
             <Row label="Hostname" value={asset.hostname} />
             <Row label="Marca/modelo" value={[asset.brand, asset.model].filter(Boolean).join(" ")} />
