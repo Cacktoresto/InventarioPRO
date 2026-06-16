@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  ASSET_MANAGER
+  TECHNICIAN
+  AUDITOR
+  VIEWER
+}
+
+enum AssetType {
+  NOTEBOOK
+  DESKTOP
+  MONITOR
+  PRINTER
+  HANDHELD
+  MOBILE_PHONE
+  PERIPHERAL
+  SERVER
+  NETWORK
+  OTHER
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ASSIGNED
+  IN_TRANSIT
+  IN_MAINTENANCE
+  RESERVED
+  DISPOSAL_REQUESTED
+  DISPOSED
+  LOST
+  RETIRED
+}
+
+enum AssetOrigin {
+  PURCHASE
+  LEASE
+  DONATION
+  ABSOLUTE_IMPORT
+  LEGACY_IMPORT
+  OTHER
+}
+
+enum LocationType {
+  DISTRIBUTION_CENTER
+  HEADQUARTERS
+  STORE
+  INTERNAL_AREA
+  TECHNICAL_ASSISTANCE
+  SUPPLIER
+  DISPOSAL_AREA
+  TRANSIT
+}
+
+enum MovementType {
+  HANDOVER
+  RETURN
+  TRANSFER
+  MAINTENANCE_SEND
+  MAINTENANCE_RETURN
+  DISPOSAL_SEND
+  INVENTORY_ADJUSTMENT
+}
+
+enum TermType {
+  HANDOVER
+  RETURN
+  TRANSFER
+  REGULARIZATION
+}
+
+enum TermStatus {
+  DRAFT
+  ISSUED
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+enum MaintenanceStatus {
+  OPEN
+  SENT_TO_PROVIDER
+  UNDER_DIAGNOSIS
+  WAITING_PARTS
+  REPAIRED
+  UNREPAIRABLE
+  CLOSED
+  CANCELED
+}
+
+enum DisposalStatus {
+  REQUESTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISPOSED
+  CANCELED
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  CANCELED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      UserRole @default(VIEWER)
+  personId  String?  @unique
+  active    Boolean  @default(true)
+  lastLoginAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  person Person? @relation(fields: [personId], references: [id], onDelete: SetNull)
+
+  createdAssets Asset[] @relation("AssetCreatedBy")
+  assignedByAssignments AssetAssignment[] @relation("AssignmentAssignedBy")
+  requestedMovements AssetMovement[] @relation("MovementRequestedBy")
+  approvedMovements AssetMovement[] @relation("MovementApprovedBy")
+  executedMovements AssetMovement[] @relation("MovementExecutedBy")
+  openedMaintenanceOrders MaintenanceOrder[] @relation("MaintenanceOpenedBy")
+  requestedDisposals DisposalRequest[] @relation("DisposalRequestedBy")
+  approvedDisposals DisposalRequest[] @relation("DisposalApprovedBy")
+  generatedTerms ResponsibilityTerm[] @relation("TermGeneratedBy")
+  uploadedImportBatches ImportBatch[] @relation("ImportUploadedBy")
+  auditEvents AuditEvent[] @relation("AuditActor")
+}
+
+model Person {
+  id           String   @id @default(cuid())
+  name         String
+  document     String?  @unique
+  email        String?  @unique
+  employeeCode String?  @unique
+  department   String?
+  locationId   String?
+  personType   String   @default("EMPLOYEE")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  location Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  user User?
+  responsibleAssets Asset[] @relation("CurrentResponsible")
+  assignments AssetAssignment[]
+  responsibilityTerms ResponsibilityTerm[]
+}
+
+model Location {
+  id               String       @id @default(cuid())
+  name             String
+  code             String       @unique
+  type             LocationType
+  parentLocationId String?
+  address          String?
+  isGovernanceBase Boolean      @default(false)
+  active           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  parentLocation Location? @relation("LocationHierarchy", fields: [parentLocationId], references: [id], onDelete: SetNull)
+  childLocations Location[] @relation("LocationHierarchy")
+  people Person[]
+  assets Asset[] @relation("CurrentLocation")
+  fromMovements AssetMovement[] @relation("MovementFromLocation")
+  toMovements AssetMovement[] @relation("MovementToLocation")
+}
+
+model Asset {
+  id                   String      @id @default(cuid())
+  assetTag             String      @unique
+  serialNumber         String?     @unique
+  hostname             String?     @unique
+  type                 AssetType
+  brand                String?
+  model                String?
+  specifications       Json?
+  status               AssetStatus @default(AVAILABLE)
+  currentLocationId    String
+  currentResponsibleId String?
+  purchaseDate         DateTime?
+  warrantyEndDate      DateTime?
+  origin               AssetOrigin @default(PURCHASE)
+  absoluteDeviceId     String?     @unique
+  createdById          String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  deletedAt            DateTime?
+
+  currentLocation Location @relation("CurrentLocation", fields: [currentLocationId], references: [id])
+  currentResponsible Person? @relation("CurrentResponsible", fields: [currentResponsibleId], references: [id], onDelete: SetNull)
+  createdBy User? @relation("AssetCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  assignments AssetAssignment[]
+  movements AssetMovement[]
+  maintenanceOrders MaintenanceOrder[]
+  disposalRequests DisposalRequest[]
+  responsibilityTerms ResponsibilityTerm[] @relation("AssetTerms")
+  importRows ImportRow[]
+}
+
+model AssetAssignment {
+  id                   String   @id @default(cuid())
+  assetId              String
+  responsibleId        String
+  assignedByUserId     String?
+  startedAt            DateTime @default(now())
+  endedAt              DateTime?
+  assignmentReason     String?
+  responsibilityTermId String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id])
+  responsible Person @relation(fields: [responsibleId], references: [id])
+  assignedByUser User? @relation("AssignmentAssignedBy", fields: [assignedByUserId], references: [id], onDelete: SetNull)
+  responsibilityTerm ResponsibilityTerm? @relation(fields: [responsibilityTermId], references: [id], onDelete: SetNull)
+
+  @@index([assetId, endedAt])
+}
+
+model AssetMovement {
+  id                 String       @id @default(cuid())
+  assetId            String
+  type               MovementType
+  fromLocationId     String?
+  toLocationId       String?
+  fromResponsibleId  String?
+  toResponsibleId    String?
+  requestedByUserId  String?
+  approvedByUserId   String?
+  executedByUserId   String?
+  requestedAt        DateTime     @default(now())
+  approvedAt         DateTime?
+  executedAt         DateTime?
+  reason             String?
+  conditionNotes     String?
+  accessories        Json?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id])
+  fromLocation Location? @relation("MovementFromLocation", fields: [fromLocationId], references: [id], onDelete: SetNull)
+  toLocation Location? @relation("MovementToLocation", fields: [toLocationId], references: [id], onDelete: SetNull)
+  requestedByUser User? @relation("MovementRequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+  approvedByUser User? @relation("MovementApprovedBy", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  executedByUser User? @relation("MovementExecutedBy", fields: [executedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([assetId, executedAt])
+}
+
+model MaintenanceOrder {
+  id                 String            @id @default(cuid())
+  assetId            String
+  openedByUserId     String?
+  providerName       String?
+  openedAt           DateTime          @default(now())
+  sentAt             DateTime?
+  returnedAt         DateTime?
+  closedAt           DateTime?
+  problemDescription String
+  diagnosis          String?
+  solution           String?
+  cost               Decimal?          @db.Decimal(12, 2)
+  status             MaintenanceStatus @default(OPEN)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id])
+  openedByUser User? @relation("MaintenanceOpenedBy", fields: [openedByUserId], references: [id], onDelete: SetNull)
+}
+
+model DisposalRequest {
+  id                String         @id @default(cuid())
+  assetId           String
+  requestedByUserId String?
+  approvedByUserId  String?
+  requestedAt       DateTime       @default(now())
+  approvedAt        DateTime?
+  disposedAt        DateTime?
+  reason            String
+  evidenceUrl       String?
+  status            DisposalStatus @default(REQUESTED)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id])
+  requestedByUser User? @relation("DisposalRequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+  approvedByUser User? @relation("DisposalApprovedBy", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+}
+
+model ResponsibilityTerm {
+  id                String     @id @default(cuid())
+  termNumber        String     @unique
+  type              TermType
+  responsibleId     String
+  generatedByUserId String?
+  generatedAt       DateTime   @default(now())
+  acceptedAt        DateTime?
+  revokedAt         DateTime?
+  status            TermStatus @default(DRAFT)
+  documentUrl       String?
+  version           Int        @default(1)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  responsible Person @relation(fields: [responsibleId], references: [id])
+  generatedByUser User? @relation("TermGeneratedBy", fields: [generatedByUserId], references: [id], onDelete: SetNull)
+  assets Asset[] @relation("AssetTerms")
+  assignments AssetAssignment[]
+}
+
+model ImportBatch {
+  id               String       @id @default(cuid())
+  source           String       @default("ABSOLUTE")
+  fileName         String
+  fileHash         String       @unique
+  uploadedByUserId String?
+  uploadedAt       DateTime     @default(now())
+  processedAt      DateTime?
+  status           ImportStatus @default(PENDING)
+  totalRows        Int          @default(0)
+  successRows      Int          @default(0)
+  errorRows        Int          @default(0)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  uploadedByUser User? @relation("ImportUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  rows ImportRow[]
+}
+
+model ImportRow {
+  id             String       @id @default(cuid())
+  importBatchId  String
+  rowNumber      Int
+  rawData        Json
+  normalizedData Json?
+  status         ImportStatus @default(PENDING)
+  errorMessage   String?
+  assetId        String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  importBatch ImportBatch @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  @@unique([importBatchId, rowNumber])
+}
+
+model AuditEvent {
+  id            String   @id @default(cuid())
+  entityType    String
+  entityId      String
+  eventType     String
+  actorUserId   String?
+  occurredAt    DateTime @default(now())
+  ipAddress     String?
+  userAgent     String?
+  beforePayload Json?
+  afterPayload  Json?
+  metadata      Json?
+
+  actorUser User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([occurredAt])
+}
