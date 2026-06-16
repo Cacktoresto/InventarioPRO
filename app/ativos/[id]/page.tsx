@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import type { Prisma } from "@prisma/client";
 import { Card, PageTitle } from "@/components/ui";
 import { assetStatusLabels, assetTypeLabels, formatDate, movementTypeLabels, termStatusLabels, termTypeLabels } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -15,15 +14,19 @@ const assetDetailsInclude = {
     include: { responsible: true },
     orderBy: { generatedAt: "desc" },
   },
-} satisfies Prisma.AssetInclude;
+} as const;
 
-type AssetDetailsRecord = Prisma.AssetGetPayload<{ include: typeof assetDetailsInclude }>;
+async function getAssetDetails(id: string) {
+  return prisma.asset.findUnique({ where: { id }, include: assetDetailsInclude });
+}
+
+type AssetDetailsRecord = NonNullable<Awaited<ReturnType<typeof getAssetDetails>>>;
 type AssetMovementRecord = AssetDetailsRecord["movements"][number];
 type AssetTermRecord = AssetDetailsRecord["responsibilityTerms"][number];
 
 export default async function AssetDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const asset = await prisma.asset.findUnique({ where: { id }, include: assetDetailsInclude });
+  const asset = await getAssetDetails(id);
 
   if (!asset) notFound();
 
