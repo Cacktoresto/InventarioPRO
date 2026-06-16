@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { hashPassword } from "../lib/password";
 
 const prisma = new PrismaClient();
 
@@ -17,11 +18,12 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@inventariopro.local" },
-    update: { active: true, role: "ADMIN", personId: adminPerson.id },
+    update: { isActive: true, role: "ADMIN", personId: adminPerson.id, passwordHash: hashPassword("admin123") },
     create: {
       name: "Administrador InventarioPRO",
       email: "admin@inventariopro.local",
       role: "ADMIN",
+      passwordHash: hashPassword("admin123"),
       personId: adminPerson.id,
     },
   });

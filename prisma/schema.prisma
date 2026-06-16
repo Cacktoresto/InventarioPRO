@@ -9,10 +9,10 @@ datasource db {
 
 enum UserRole {
   ADMIN
-  ASSET_MANAGER
-  TECHNICIAN
-  AUDITOR
-  VIEWER
+  TI_CD
+  SUPORTE_LOJAS
+  GESTOR
+  CONSULTA
 }
 
 enum AssetType {
@@ -118,9 +118,10 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
-  role      UserRole @default(VIEWER)
+  role      UserRole @default(CONSULTA)
+  passwordHash String?
   personId  String?  @unique
-  active    Boolean  @default(true)
+  isActive Boolean  @default(true)
   lastLoginAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

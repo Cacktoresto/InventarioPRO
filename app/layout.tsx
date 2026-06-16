@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { MobileNav, SidebarNav } from "@/components/navigation";
+import { logoutAction } from "@/app/login/actions";
 import "./globals.css";
 
 export const metadata: Metadata = { title: "InventarioPRO", description: "Portal de Gestão de Ativos de TI" };
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="mt-auto border-t border-white/10 p-6">
               <p className="font-semibold text-white">Inventário Pro</p>
               <p className="text-sm text-slate-400">Versão MVP</p>
+              <form action={logoutAction} className="mt-4"><button className="rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">Sair</button></form>
             </div>
           </aside>
           <main className="min-h-screen lg:ml-72">

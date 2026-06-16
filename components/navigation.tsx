@@ -12,6 +12,7 @@ const nav = [
   { label: "Termos", href: "/termos", icon: "◫" },
   { label: "Auditoria", href: "/auditoria", icon: "◎" },
   { label: "Configurações", href: "/configuracoes", icon: "⚙" },
+  { label: "Usuários", href: "/usuarios", icon: "◇" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
