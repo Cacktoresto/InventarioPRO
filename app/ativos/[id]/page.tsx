@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Card, PageTitle } from "@/components/ui";
-import { assetStatusLabels, assetTypeLabels, formatDate, movementTypeLabels, termStatusLabels, termTypeLabels } from "@/lib/format";
+import { assetStatusLabel, assetTypeLabel, formatDate, movementTypeLabel, termStatusLabel, termTypeLabel } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 const assetDetailsInclude = {
@@ -37,8 +37,8 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
         <Card>
           <h2 className="mb-4 text-lg font-semibold">Dados do ativo</h2>
           <dl className="space-y-3 text-sm">
-            <Row label="Tipo" value={assetTypeLabels[asset.type]} />
-            <Row label="Status" value={assetStatusLabels[asset.status]} />
+            <Row label="Tipo" value={assetTypeLabel(asset.type)} />
+            <Row label="Status" value={assetStatusLabel(asset.status)} />
             <Row label="Serial" value={asset.serialNumber} />
             <Row label="Hostname" value={asset.hostname} />
             <Row label="Marca/modelo" value={[asset.brand, asset.model].filter(Boolean).join(" ")} />
@@ -64,7 +64,7 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
               {asset.movements.map((movement: AssetMovementRecord) => (
                 <div key={movement.id} className="rounded-xl border border-slate-200 p-4 text-sm">
                   <p className="font-semibold">
-                    {movementTypeLabels[movement.type]} • {formatDate(movement.executedAt ?? movement.requestedAt)}
+                    {movementTypeLabel(movement.type)} • {formatDate(movement.executedAt ?? movement.requestedAt)}
                   </p>
                   <p className="text-slate-600">{movement.fromLocation?.name ?? "—"} → {movement.toLocation?.name ?? "—"}</p>
                   <p className="text-slate-500">{movement.reason ?? "Sem motivo informado"}</p>
@@ -81,8 +81,8 @@ export default async function AssetDetails({ params }: { params: Promise<{ id: s
             <div className="space-y-3">
               {asset.responsibilityTerms.map((term: AssetTermRecord) => (
                 <div key={term.id} className="rounded-xl border border-slate-200 p-4 text-sm">
-                  <p className="font-semibold">{term.termNumber} • {termTypeLabels[term.type]}</p>
-                  <p className="text-slate-600">{term.responsible.name} — {termStatusLabels[term.status]}</p>
+                  <p className="font-semibold">{term.termNumber} • {termTypeLabel(term.type)}</p>
+                  <p className="text-slate-600">{term.responsible.name} — {termStatusLabel(term.status)}</p>
                   <p className="text-slate-500">Gerado em {formatDate(term.generatedAt)}</p>
                 </div>
               ))}

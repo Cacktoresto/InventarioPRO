@@ -84,6 +84,38 @@ export const termStatusLabels: Record<TermStatusValue, string> = {
   EXPIRED: "Expirado",
 };
 
+function isOneOf<T extends readonly string[]>(values: T, value: string): value is T[number] {
+  return (values as readonly string[]).includes(value);
+}
+
+export function assetStatusLabel(value: string) {
+  return isOneOf(assetStatuses, value) ? assetStatusLabels[value] : value;
+}
+
+export function assetTypeLabel(value: string) {
+  return isOneOf(assetTypes, value) ? assetTypeLabels[value] : value;
+}
+
+export function locationTypeLabel(value: string) {
+  return isOneOf(locationTypes, value) ? locationTypeLabels[value] : value;
+}
+
+export function locationTypeValue(value: string): LocationTypeValue {
+  return isOneOf(locationTypes, value) ? value : "INTERNAL_AREA";
+}
+
+export function movementTypeLabel(value: string) {
+  return isOneOf(movementTypes, value) ? movementTypeLabels[value] : value;
+}
+
+export function termTypeLabel(value: string) {
+  return isOneOf(termTypes, value) ? termTypeLabels[value] : value;
+}
+
+export function termStatusLabel(value: string) {
+  return isOneOf(termStatuses, value) ? termStatusLabels[value] : value;
+}
+
 export function formatDate(date?: Date | null) {
   return date ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(date) : "—";
 }
