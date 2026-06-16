@@ -17,13 +17,17 @@ type PeopleData = Awaited<ReturnType<typeof getPeopleData>>;
 type PersonRecord = PeopleData["people"][number];
 type PersonLocationRecord = PeopleData["locations"][number];
 
-export default async function PeoplePage() {
-  const { people, locations } = await getPeopleData();
+type PeopleSearchParams = { result?: string; message?: string };
+
+export default async function PeoplePage({ searchParams }: { searchParams: Promise<PeopleSearchParams> }) {
+  const [params, data] = await Promise.all([searchParams, getPeopleData()]);
+  const { people, locations } = data;
   return (
     <>
-      <PageTitle title="Pessoas" description="CRUD completo de colaboradores e responsáveis." />
+      <PageTitle title="Pessoas" description="CRUD completo de colaboradores e responsáveis." action={<a className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" href="#nova-pessoa">Nova Pessoa</a>} />
       <Card>
-        <h2 className="mb-3 font-semibold">Nova pessoa</h2>
+        {params.message ? <Alert status={params.result} message={params.message} /> : null}
+        <h2 id="nova-pessoa" className="mb-3 font-semibold">Nova pessoa</h2>
         <form action={createPerson} className="grid gap-3 md:grid-cols-3">
           <Input name="name" placeholder="Nome" required />
           <Input name="email" placeholder="E-mail" />
@@ -71,4 +75,9 @@ function LocationSelect({ locations, defaultValue = "" }: { locations: PersonLoc
 
 function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className="rounded-xl border border-slate-300 px-3 py-2" />;
+}
+
+function Alert({ status, message }: { status?: string; message: string }) {
+  const isError = status === "error";
+  return <p className={`mb-4 rounded-xl border px-4 py-3 text-sm ${isError ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>{message}</p>;
 }

@@ -13,13 +13,16 @@ async function getLocations() {
 type LocationRecord = Awaited<ReturnType<typeof getLocations>>[number];
 type LocationOption = Pick<LocationRecord, "id" | "name">;
 
-export default async function LocationsPage() {
-  const locations = await getLocations();
+type LocationsSearchParams = { result?: string; message?: string };
+
+export default async function LocationsPage({ searchParams }: { searchParams: Promise<LocationsSearchParams> }) {
+  const [params, locations] = await Promise.all([searchParams, getLocations()]);
   return (
     <>
-      <PageTitle title="Localizações" description="CRUD completo de bases, lojas e áreas internas." />
+      <PageTitle title="Localizações" description="CRUD completo de bases, lojas e áreas internas." action={<a className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800" href="#nova-localizacao">Nova Localização</a>} />
       <Card>
-        <h2 className="mb-3 font-semibold">Nova localização</h2>
+        {params.message ? <Alert status={params.result} message={params.message} /> : null}
+        <h2 id="nova-localizacao" className="mb-3 font-semibold">Nova localização</h2>
         <form action={createLocation} className="grid gap-3 md:grid-cols-3">
           <Input name="name" placeholder="Nome" required />
           <Input name="code" placeholder="Código" required />
@@ -75,4 +78,9 @@ function ParentSelect({ locations, defaultValue = "" }: { locations: LocationOpt
       {locations.map((location: LocationOption) => <option key={location.id} value={location.id}>{location.name}</option>)}
     </select>
   );
+}
+
+function Alert({ status, message }: { status?: string; message: string }) {
+  const isError = status === "error";
+  return <p className={`mb-4 rounded-xl border px-4 py-3 text-sm ${isError ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}>{message}</p>;
 }
