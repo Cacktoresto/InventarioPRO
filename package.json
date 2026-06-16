@@ -1,0 +1,24 @@
+{
+  "name": "inventario-pro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portal de Gestão de Ativos de TI",
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "prisma:db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "latest"
+  },
+  "devDependencies": {
+    "prisma": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "@types/node": "latest"
+  }
+}
